@@ -1,7 +1,13 @@
+set t_CO=256
+syntax on
 color desert
 set relativenumber
 set tabstop=4
+set softtabstop=4
 set shiftwidth=4
 set cindent
 set showcmd
 set nu
+set hlsearch
+set incsearch
+set laststatus=2
