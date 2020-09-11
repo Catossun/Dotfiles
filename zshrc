@@ -55,6 +55,14 @@ zinit light denysdovhan/spaceship-prompt
 # Set TERM to xterm-256color
 export TERM="xterm-256color"
 
-alias gs="git status"
-alias gc="git commit"
-alias ga="git add"
+alias gs='git status'
+alias gc='git commit'
+alias ga='git add'
+alias gp='git push'
+alias tmux='tmux -2'
+alias .='source'
+alias ls='ls --color=auto'
+alias ll='ls -al'
+alias grep='grep --color=auto'
+alias history='history 0'
+
