@@ -11,3 +11,4 @@ set nu
 set hlsearch
 set incsearch
 set laststatus=2
+set wildmode=full
