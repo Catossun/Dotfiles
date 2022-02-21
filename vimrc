@@ -5,6 +5,7 @@ set showcmd "Show command in the right of status bar
 set laststatus=2
 set wildmode=list:full "Show matched command list in command mode
 set cursorline "Show horizontal line on cursor position
+set mouse=a "Enable mouse support
 
 "Indent
 filetype indent on "Enable auto detect indent from file type
