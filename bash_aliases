@@ -11,3 +11,7 @@ alias gd="git difftool"
 alias gb="git branch"
 alias gt="git tag"
 alias g="git"
+
+# Tool Aliases
+alias diff="vimdiff"
+
