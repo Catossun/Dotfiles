@@ -1,0 +1,6 @@
+patch:
+  switcher:
+    hotkeys:
+      - "Control+grave"
+  schema_list:
+    - schema: bopomofo
