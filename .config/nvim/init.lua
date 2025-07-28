@@ -26,3 +26,4 @@ require("lazy").setup("plugins")
 -- Load vim options
 require("options")
 require("options.keymaps")
+
