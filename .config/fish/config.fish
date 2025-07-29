@@ -1,12 +1,15 @@
 status is-interactive || exit
 
-set -x BAT_THEME 'TwoDark'
-
 fish_add_path ~/.local/bin
 
 # Init Oh-My-Posh
 if which oh-my-posh > /dev/null
 	oh-my-posh init fish -c ~/.config/ohmyposh/di4am0nd.omp.json | source
+end
+
+if which batcat > /dev/null
+  set -x BAT_THEME 'TwoDark'
+  alias cat="batcat"
 end
 
 # Git Aliases
