@@ -1,5 +1,7 @@
 status is-interactive || exit
 
+set -x BAT_THEME 'TwoDark'
+
 fish_add_path ~/.local/bin
 
 # Init Oh-My-Posh
