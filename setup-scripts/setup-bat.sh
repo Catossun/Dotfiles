@@ -4,9 +4,8 @@ set -e
 
 echo "Installing bat..."
 
-sudo apt update >> /dev/null 2>&1
-sudo apt install -y bat  >> /dev/null 2>&1
+curl -sfLo /tmp/bat.deb https://github.com/sharkdp/bat/releases/download/v0.25.0/bat_0.25.0_amd64.deb
 
-ln -s $(which batcat) ~/.local/bin/bat
+sudo apt install /tmp/bat.deb
 
 bat --version && echo "Install success!"
