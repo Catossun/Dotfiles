@@ -7,9 +7,9 @@ if which oh-my-posh > /dev/null
 	oh-my-posh init fish -c ~/.config/ohmyposh/di4am0nd.omp.json | source
 end
 
-if which batcat > /dev/null
+if which bat > /dev/null
   set -x BAT_THEME 'TwoDark'
-  alias cat="batcat"
+  alias cat="bat"
 end
 
 # Git Aliases
