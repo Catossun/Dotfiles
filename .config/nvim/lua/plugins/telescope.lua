@@ -2,11 +2,6 @@ return {
   "nvim-telescope/telescope.nvim",
   tag = "0.1.4",
   dependencies = { "nvim-lua/plenary.nvim" },
-  keys = {
-    { "<Leader>lg", "<cmd>Telescope live_grep<cr>",  desc = "Live grep" },
-    { "<Leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find files" },
-    { "<Leader>of", "<cmd>Telescope oldfiles<cr>",  desc = "Old files" },
-  },
   config = function()
     local actions = require("telescope.actions")
     require("telescope").setup({

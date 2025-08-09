@@ -5,11 +5,6 @@ keymap.set("v", "<", "<gv")
 keymap.set("n", "n", "nzz")
 keymap.set("n", "N", "Nzz")
 
--- Diagnostic
-keymap.set("n", "<Leader>q", vim.diagnostic.open_float)
-keymap.set("n", "<Leader>gnd", vim.diagnostic.goto_next)
-keymap.set("n", "<Leader>gNd", vim.diagnostic.goto_prev)
-
 -- LspAttach
 -- From https://github.com/neovim/nvim-lspconfig
 vim.api.nvim_create_autocmd("LspAttach", {
