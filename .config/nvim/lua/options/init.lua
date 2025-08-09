@@ -31,6 +31,8 @@ vim.api.nvim_set_hl(0, "TelescopeBorder", { bg = "none" })
 vim.api.nvim_set_hl(0, "LineNr", { fg = nord.nord4, bg = nord.nord2 })
 vim.api.nvim_set_hl(0, "LineNrAbove", { fg = nord.nord4 })
 vim.api.nvim_set_hl(0, "LineNrBelow", { fg = nord.nord4 })
+vim.api.nvim_set_hl(0, "Whitespace", { fg = nord.nord3, bg = nord.nord4 })
 
 vim.o.rnu = true
 vim.o.number = true
+vim.o.list = true
