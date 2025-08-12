@@ -21,7 +21,17 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 -- Load plugins
-require("lazy").setup("plugins")
+require("lazy").setup({
+  spec = {
+    {import = "plugins"},
+  },
+  performance = {
+    cache = {
+      -- Disable cache to prevent ENAMETOOLONG
+      enabled = false,
+    },
+  },
+})
 
 -- Load vim options
 require("options")
