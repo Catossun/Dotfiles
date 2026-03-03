@@ -86,3 +86,9 @@ function fish_title
         end
     end
 end
+
+# Set Bitwarden SSH agent
+set bitwarden_sock "$HOME/.bitwarden-ssh-agent.sock"
+if test -S "$bitwarden_sock"
+  set -gx SSH_AUTH_SOCK "$bitwarden_sock"
+end
