@@ -18,6 +18,46 @@ config.send_composed_key_when_left_alt_is_pressed = false
 -- 使用內建的 Nord 主題
 config.color_scheme = 'nord'
 
+config.colors = {
+  tab_bar = {
+    -- 整個分頁列的底部背景色 (對應 tmux nord_0)
+    background = '#2e3440',
+
+    -- 正在使用的當前分頁 (Active Tab)
+    -- 對應 tmux: bg=nord_3, fg=nord_7, attr=italics
+    active_tab = {
+      bg_color = '#4c566a',
+      fg_color = '#8fbcbb',
+      italic = true,
+    },
+
+    -- 沒有在使用的分頁 (Inactive Tab)
+    -- 對應 tmux: bg=nord_0, fg=nord_4
+    inactive_tab = {
+      bg_color = '#2e3440',
+      fg_color = '#d8dee9',
+    },
+
+    -- 滑鼠游標停留在非作用中分頁時的顏色 (WezTerm 專屬的互動回饋)
+    inactive_tab_hover = {
+      bg_color = '#3b4252', -- nord_1
+      fg_color = '#eceff4', -- nord_6
+    },
+
+    -- 分頁列右側「新增分頁 (+)」按鈕的顏色
+    new_tab = {
+      bg_color = '#2e3440', -- nord_0
+      fg_color = '#d8dee9', -- nord_4
+    },
+
+    -- 滑鼠游標停留在新增按鈕時的顏色
+    new_tab_hover = {
+      bg_color = '#8fbcbb', -- nord_7
+      fg_color = '#2e3440', -- nord_0
+    },
+  },
+}
+
 -- 關閉花俏的分頁列，呈現類似 tmux 的簡約風格
 config.use_fancy_tab_bar = false
 config.show_tab_index_in_tab_bar = true
@@ -129,24 +169,31 @@ end
 
 -- 監聽狀態列更新事件
 wezterm.on('update-right-status', function(window, pane)
+  -- 預先定義你的 Nord 色票
+  local nord_0  = '#2e3440' -- 分頁列底色
+  local nord_3  = '#4c566a' -- 分隔線顏色
+  local nord_4  = '#d8dee9' -- 預設文字顏色
+  local nord_10 = '#5e81ac' -- tmux 設定的主機名稱高亮背景色
+  local nord_13 = '#ebcb8b' -- tmux 的亮黃色 (用來提示 Leader Key)
+
   local cells = {}
 
   -- 1. Leader Key 狀態指示器 (對應 tmux 的 ⌨)
   if window:leader_is_active() then
-    table.insert(cells, '⌨')
+    table.insert(cells, { text = '⌨', bg = nord_13, fg = nord_0, bold = true })
   end
 
-  table.insert(cells, get_current_dir(pane))
+  table.insert(cells, { text = get_current_dir(pane), bg = nord_0, fg = nord_4, bold = false })
 
   -- 2. 天氣資訊 (從快取讀取)
-  table.insert(cells, get_weather())
+  table.insert(cells, { text = get_weather(), bg = nord_0, fg = nord_4, bold = false })
 
   -- 3. 日期與時間
   local date = wezterm.strftime '%m/%d %H:%M'
-  table.insert(cells, date)
+  table.insert(cells, { text = date, bg = nord_0, fg = nord_4, bold = false })
 
   -- 4. 主機名稱
-  table.insert(cells, wezterm.hostname())
+  table.insert(cells, { text = wezterm.hostname(), bg = nord_10, fg = nord_4, bold = true })
 
   -- 5. 電池資訊 (如果是 Mac mini 這類無電池的桌機，會自動隱藏不顯示)
   local battery_info = ""
@@ -157,26 +204,33 @@ wezterm.on('update-right-status', function(window, pane)
     end
   end
   if battery_info ~= "" then
-    table.insert(cells, "🔋 " .. battery_info)
+    table.insert(cells, { text = "🔋 " .. battery_info, bg = nord_0, fg = nord_4, bold = false })
   end
 
   -- 【組合與上色】
   -- 這裡使用 Nord 主題的色票來美化分隔線與文字
   local elements = {}
-  local text_fg = '#d8dee9'  -- Nord 4 (文字顏色)
-  local text_bg = '#3b4252'  -- Nord 1 (背景顏色)
-  local sep_fg  = '#4c566a'  -- Nord 3 (分隔線顏色)
-
   for i, cell in ipairs(cells) do
-    -- 插入文字區塊
-    table.insert(elements, { Foreground = { Color = text_fg } })
-    table.insert(elements, { Background = { Color = text_bg } })
-    table.insert(elements, { Text = ' ' .. cell .. ' ' })
+    -- 設定前景與背景色
+    table.insert(elements, { Foreground = { Color = cell.fg } })
+    table.insert(elements, { Background = { Color = cell.bg } })
 
-    -- 插入分隔線 (除了最後一個元素)
+    -- 設定字體粗細
+    if cell.bold then
+      table.insert(elements, { Attribute = { Intensity = 'Bold' } })
+    else
+      table.insert(elements, { Attribute = { Intensity = 'Normal' } })
+    end
+
+    -- 插入文字
+    table.insert(elements, { Text = ' ' .. cell.text .. ' ' })
+
+    -- 插入分隔線 (除了最後一個區塊)
     if i < #cells then
-      table.insert(elements, { Foreground = { Color = sep_fg } })
-      table.insert(elements, { Background = { Color = text_bg } })
+      -- 分隔線固定使用 nord_0 作為背景，nord_3 作為線條顏色
+      table.insert(elements, { Foreground = { Color = nord_3 } })
+      table.insert(elements, { Background = { Color = nord_0 } })
+      table.insert(elements, { Attribute = { Intensity = 'Normal' } })
       table.insert(elements, { Text = '|' })
     end
   end
