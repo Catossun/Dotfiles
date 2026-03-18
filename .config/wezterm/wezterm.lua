@@ -118,8 +118,8 @@ config.keys = {
 
   { key = 's', mods = 'LEADER', action = wezterm.action.ShowLauncherArgs { flags = 'FUZZY | DOMAINS' } },
 
-  { key = 'h', mods = 'LEADER|CTRL', action = wezterm.action.ActivateTabRelative(1) },
-  { key = 'l', mods = 'LEADER|CTRL', action = wezterm.action.ActivateTabRelative(-1) },
+  { key = 'h', mods = 'LEADER|CTRL', action = wezterm.action.ActivateTabRelative(-1) },
+  { key = 'l', mods = 'LEADER|CTRL', action = wezterm.action.ActivateTabRelative(1) },
 }
 
 -- ==========================================
