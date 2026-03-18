@@ -2,6 +2,13 @@ local wezterm = require 'wezterm'
 local io = require 'io'
 local os = require 'os'
 
+local nord_0  = '#2e3440' -- 分頁列底色
+local nord_3  = '#4c566a' -- 分隔線顏色
+local nord_4  = '#d8dee9' -- 預設文字顏色
+local nord_10 = '#5e81ac' -- tmux 設定的主機名稱高亮背景色
+local nord_13 = '#ebcb8b' -- tmux 的亮黃色 (用來提示 Leader Key)
+local nord_15 = '#b48ead' -- tmux 設定的左側背景色 (紫紅色)
+
 local config = wezterm.config_builder()
 
 config.font = wezterm.font 'CaskaydiaCove NF'
@@ -167,15 +174,32 @@ local function get_current_dir(pane)
   return cwd
 end
 
--- 監聽狀態列更新事件
-wezterm.on('update-right-status', function(window, pane)
-  -- 預先定義你的 Nord 色票
-  local nord_0  = '#2e3440' -- 分頁列底色
-  local nord_3  = '#4c566a' -- 分隔線顏色
-  local nord_4  = '#d8dee9' -- 預設文字顏色
-  local nord_10 = '#5e81ac' -- tmux 設定的主機名稱高亮背景色
-  local nord_13 = '#ebcb8b' -- tmux 的亮黃色 (用來提示 Leader Key)
+local function set_left_status(window)
+  -- 取得目前系統的使用者名稱 (Mac/Linux 通用)
+  local username = os.getenv('USER') or os.getenv('LOGNAME') or 'user'
 
+  -- 如果是 root 帳號，加上驚嘆號提示 (對應 tmux 的 #{root} 行為)
+  local root_indicator = ""
+  if username == 'root' then
+    root_indicator = " ⚡"
+  end
+
+  local elements = {
+    -- 設定紫紅色背景與深色文字
+    { Background = { Color = nord_15 } },
+    { Foreground = { Color = nord_0 } },
+    { Attribute  = { Intensity = 'Bold' } },
+    { Text = ' ' .. username .. root_indicator .. ' ' },
+
+    -- 尾端加上一段底色過渡，讓它跟後面的分頁無縫接軌
+    { Background = { Color = nord_0 } },
+    { Text = ' ' },
+  }
+
+  window:set_left_status(wezterm.format(elements))
+end
+
+local function set_right_status(window)
   local cells = {}
 
   -- 1. Leader Key 狀態指示器 (對應 tmux 的 ⌨)
@@ -236,6 +260,12 @@ wezterm.on('update-right-status', function(window, pane)
   end
 
   window:set_right_status(wezterm.format(elements))
+end
+
+-- 監聽狀態列更新事件
+wezterm.on('update-status', function(window, pane)
+  set_left_status(window)
+  set_right_status(window)
 end)
 
 local function basename(s)
