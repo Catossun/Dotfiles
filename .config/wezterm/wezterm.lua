@@ -199,7 +199,7 @@ local function set_left_status(window)
   window:set_left_status(wezterm.format(elements))
 end
 
-local function set_right_status(window)
+local function set_right_status(window, pane)
   local cells = {}
 
   -- 1. Leader Key 狀態指示器 (對應 tmux 的 ⌨)
@@ -265,7 +265,7 @@ end
 -- 監聽狀態列更新事件
 wezterm.on('update-status', function(window, pane)
   set_left_status(window)
-  set_right_status(window)
+  set_right_status(window, pane)
 end)
 
 local function basename(s)
