@@ -3,4 +3,4 @@ patch:
     hotkeys:
       - "Control+grave"
   schema_list:
-    - schema: bopomofo
+    - schema: bopomofo_tw
