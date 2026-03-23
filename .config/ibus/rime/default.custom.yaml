@@ -1,6 +1,1 @@
-patch:
-  switcher:
-    hotkeys:
-      - "Control+grave"
-  schema_list:
-    - schema: bopomofo_tw
+../../rime/default.custom.yaml
