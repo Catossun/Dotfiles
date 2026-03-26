@@ -15,7 +15,7 @@ config.font = wezterm.font 'CaskaydiaCove NF'
 config.font_size = 18.0
 config.window_background_opacity = 0.9
 config.macos_window_background_blur = 30
-config.tab_bar_at_bottom = true
+config.tab_bar_at_bottom = false
 config.tab_max_width = 20
 config.send_composed_key_when_left_alt_is_pressed = false
 
@@ -199,6 +199,43 @@ local function set_left_status(window)
   window:set_left_status(wezterm.format(elements))
 end
 
+-- 核心函數：解析 SSH 指令中的 Hostname
+local function get_ssh_hostname(pane)
+  local foreground_process = pane:get_foreground_process_info()
+  if not foreground_process then return nil end
+
+  -- 檢查是否為 ssh 或 mosh
+  local is_ssh = false
+  local args = {}
+  for i, arg in ipairs(foreground_process.argv) do
+    if i == 1 and (arg:match("ssh$") or arg:match("mosh%-client$")) then
+      is_ssh = true
+    end
+    if i > 1 then table.insert(args, arg) end
+  end
+
+  if not is_ssh then return nil end
+
+  -- 使用 ssh -G 模擬解析 (如同 oh-my-tmux 的邏輯)
+  -- 這會考慮到 ~/.ssh/config 中的 Alias 與 HostName 對應
+  local ssh_cmd = {"ssh", "-G"}
+  for _, a in ipairs(args) do table.insert(ssh_cmd, a) end
+
+  local success, stdout, stderr = wezterm.run_child_process(ssh_cmd)
+
+  if success then
+    for line in stdout:gmatch("[^\r\n]+") do
+      local hostname = line:match("^hostname%s+(.+)")
+      if hostname then
+        return hostname
+      end
+    end
+  end
+
+  -- 如果 ssh -G 失敗，退而求其次抓取參數中的最後一個當作主機名
+  return args[#args]
+end
+
 local function set_right_status(window, pane)
   local cells = {}
 
@@ -217,7 +254,8 @@ local function set_right_status(window, pane)
   table.insert(cells, { text = date, bg = nord_0, fg = nord_4, bold = false })
 
   -- 4. 主機名稱
-  table.insert(cells, { text = wezterm.hostname(), bg = nord_10, fg = nord_4, bold = true })
+  local hostname = get_ssh_hostname(pane) or wezterm.hostname():gsub("%.%S+", "")
+  table.insert(cells, { text = hostname, bg = nord_10, fg = nord_4, bold = true })
 
   -- 5. 電池資訊 (如果是 Mac mini 這類無電池的桌機，會自動隱藏不顯示)
   local battery_info = ""
