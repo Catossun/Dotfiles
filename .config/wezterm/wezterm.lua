@@ -5,7 +5,9 @@ local os = require 'os'
 local nord_0  = '#2e3440' -- 分頁列底色
 local nord_3  = '#4c566a' -- 分隔線顏色
 local nord_4  = '#d8dee9' -- 預設文字顏色
+local nord_6  = '#eceff4'
 local nord_10 = '#5e81ac' -- tmux 設定的主機名稱高亮背景色
+local nord_11 = '#bf616a'
 local nord_13 = '#ebcb8b' -- tmux 的亮黃色 (用來提示 Leader Key)
 local nord_15 = '#b48ead' -- tmux 設定的左側背景色 (紫紅色)
 
@@ -174,22 +176,23 @@ local function get_current_dir(pane)
   return cwd
 end
 
-local function set_left_status(window)
-  -- 取得目前系統的使用者名稱 (Mac/Linux 通用)
-  local username = os.getenv('USER') or os.getenv('LOGNAME') or 'user'
-
-  -- 如果是 root 帳號，加上驚嘆號提示 (對應 tmux 的 #{root} 行為)
-  local root_indicator = ""
+local function set_left_status(window, host_info)
+  local username = host_info.user
+  local background = nord_15
+  local foreground = nord_0
   if username == 'root' then
-    root_indicator = " ⚡"
+    username = username .. " ⚡"
+    background = nord_11
+    foreground = nord_6
   end
+
 
   local elements = {
     -- 設定紫紅色背景與深色文字
-    { Background = { Color = nord_15 } },
-    { Foreground = { Color = nord_0 } },
+    { Background = { Color = background } },
+    { Foreground = { Color = foreground } },
     { Attribute  = { Intensity = 'Bold' } },
-    { Text = ' ' .. username .. root_indicator .. ' ' },
+    { Text = ' ' .. username .. ' ' },
 
     -- 尾端加上一段底色過渡，讓它跟後面的分頁無縫接軌
     { Background = { Color = nord_0 } },
@@ -199,44 +202,51 @@ local function set_left_status(window)
   window:set_left_status(wezterm.format(elements))
 end
 
--- 核心函數：解析 SSH 指令中的 Hostname
-local function get_ssh_hostname(pane)
+local function get_host_info(pane)
+  local username = os.getenv('USER') or os.getenv('LOGNAME') or 'user'
+  local res = { user = username, host = wezterm.hostname():gsub("%.%S+", "") }
+
   local foreground_process = pane:get_foreground_process_info()
-  if not foreground_process then return nil end
-
-  -- 檢查是否為 ssh 或 mosh
-  local is_ssh = false
-  local args = {}
-  for i, arg in ipairs(foreground_process.argv) do
-    if i == 1 and (arg:match("ssh$") or arg:match("mosh%-client$")) then
-      is_ssh = true
+  if foreground_process then
+    local is_ssh = false
+    local args = {}
+    for i, arg in ipairs(foreground_process.argv) do
+      if i == 1 and (arg:match("ssh$") or arg:match("mosh%-client$")) then
+        is_ssh = true
+      end
+      if i > 1 then table.insert(args, arg) end
     end
-    if i > 1 then table.insert(args, arg) end
-  end
 
-  if not is_ssh then return nil end
+    if not is_ssh then return res end
 
-  -- 使用 ssh -G 模擬解析 (如同 oh-my-tmux 的邏輯)
-  -- 這會考慮到 ~/.ssh/config 中的 Alias 與 HostName 對應
-  local ssh_cmd = {"ssh", "-G"}
-  for _, a in ipairs(args) do table.insert(ssh_cmd, a) end
+    local ssh_cmd = {"ssh", "-G"}
+    for _, a in ipairs(args) do table.insert(ssh_cmd, a) end
+    local success, stdout, stderr = wezterm.run_child_process(ssh_cmd)
 
-  local success, stdout, stderr = wezterm.run_child_process(ssh_cmd)
+    if success then
+      for line in stdout:gmatch("[^\r\n]+") do
+        -- 提取 User
+        local u = line:match("^user%s+(.+)")
+        if u then res.user = u end
 
-  if success then
-    for line in stdout:gmatch("[^\r\n]+") do
-      local hostname = line:match("^hostname%s+(.+)")
-      if hostname then
-        return hostname
+        -- 提取 Hostname 並格式化
+        local h = line:match("^hostname%s+(.+)")
+        if h then
+          res.host = h
+        end
       end
     end
   end
 
-  -- 如果 ssh -G 失敗，退而求其次抓取參數中的最後一個當作主機名
-  return args[#args]
+  local title = pane:get_title()
+  if title:match("^root@") or title:match("sudo") then
+    res.user = "root"
+  end
+
+  return res
 end
 
-local function set_right_status(window, pane)
+local function set_right_status(window, pane, host_info)
   local cells = {}
 
   -- 1. Leader Key 狀態指示器 (對應 tmux 的 ⌨)
@@ -254,8 +264,7 @@ local function set_right_status(window, pane)
   table.insert(cells, { text = date, bg = nord_0, fg = nord_4, bold = false })
 
   -- 4. 主機名稱
-  local hostname = get_ssh_hostname(pane) or wezterm.hostname():gsub("%.%S+", "")
-  table.insert(cells, { text = hostname, bg = nord_10, fg = nord_4, bold = true })
+  table.insert(cells, { text = host_info.host, bg = nord_10, fg = nord_4, bold = true })
 
   -- 5. 電池資訊 (如果是 Mac mini 這類無電池的桌機，會自動隱藏不顯示)
   local battery_info = ""
@@ -302,8 +311,9 @@ end
 
 -- 監聽狀態列更新事件
 wezterm.on('update-status', function(window, pane)
-  set_left_status(window)
-  set_right_status(window, pane)
+  local host_info = get_host_info(pane)
+  set_left_status(window, host_info)
+  set_right_status(window, pane, host_info)
 end)
 
 local function basename(s)
