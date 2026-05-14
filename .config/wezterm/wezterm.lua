@@ -13,7 +13,7 @@ local nord_15 = '#b48ead' -- tmux 設定的左側背景色 (紫紅色)
 
 local config = wezterm.config_builder()
 
-config.font = wezterm.font 'CaskaydiaCove NF'
+config.font = wezterm.font 'IosevkaTerm Nerd Font'
 config.font_size = 18.0
 config.window_background_opacity = 0.9
 config.macos_window_background_blur = 30
