@@ -20,7 +20,7 @@
             "style": "folder"
           },
           "template": "{{ .Path }}/ ",
-          "foreground": "#00C6F7",
+          "foreground": "#00c6f7",
           "type": "path",
           "style": "plain"
         },
@@ -56,7 +56,7 @@
           },
           "trailing_diamond": " ",
           "template": "RAM:{{ round (divf ((sub .PhysicalTotalMemory .PhysicalFreeMemory)|float64) 1000000000.0) 2 }}/{{ (div .PhysicalTotalMemory 1000000000.0) }}GB ",
-          "foreground": "#85C980",
+          "foreground": "#8fbcbb",
           "type": "sysinfo",
           "style": "diamond"
         },
@@ -68,8 +68,20 @@
           },
           "leading_diamond": "\u250b",
           "template": " {{ .FormattedMs }} ",
-          "foreground": "#ffffff",
+          "foreground": "#d8dee9",
           "type": "executiontime",
+          "style": "diamond"
+        },
+        {
+          "properties": {
+            "cache_duration": "none",
+            "style": "roundrock",
+            "threshold": 0
+          },
+          "leading_diamond": "\u250b",
+          "template": " {{ .CurrentDate | date .Format }} ",
+          "foreground": "#81a1c1",
+          "type": "time",
           "style": "diamond"
         }
       ]
@@ -82,7 +94,7 @@
           "properties": {
             "cache_duration": "none"
           },
-          "template": "\u2b9e ",
+          "template": "\u27a5",
           "foreground": "#FFBD00",
           "type": "text",
           "style": "plain"

@@ -4,7 +4,7 @@ fish_add_path ~/.local/bin
 
 # Init Oh-My-Posh
 if which oh-my-posh > /dev/null
-	oh-my-posh init fish -c ~/.config/ohmyposh/di4am0nd.omp.json | source
+  oh-my-posh init fish -c ~/.config/ohmyposh/webb.omp.json | source
 end
 
 if which bat > /dev/null
